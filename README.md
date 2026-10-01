@@ -24,11 +24,11 @@ The release consists of two parts:
 
 ### PC Companion
 
-![PS4 Package Link PC Companion](./docs/companion-ui-preview.png)
+![PS4 Package Link PC Companion](./companion-ui-preview.png)
 
 ### PS4 app
 
-![PS4 Package Link PS4 UI](./docs/ps4-ui-preview.png)
+![PS4 Package Link PS4 UI](./ps4-ui-preview.png)
 
 > The PS4 image above is a rendered preview based on the current v0.6.4 UI layout. It can be replaced with a direct hardware capture later.
 
