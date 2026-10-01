@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "apps": [
+    {
+      "id": "example-homebrew",
+      "name": "Example Homebrew",
+      "category": "Homebrew",
+      "pkg_url": "https://example.com/example-homebrew.pkg",
+      "image": "https://example.com/example-homebrew.png",
+      "filename": "Example-Homebrew.pkg",
+      "description": "Replace this example with a PKG URL and artwork you are authorized to use."
+    }
+  ]
+}

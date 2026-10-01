@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "apps": [
+    {
+      "id": "apollo",
+      "name": "Apollo Save Tool",
+      "category": "Homebrew",
+      "pkg_url": "https://your-host.example/Apollo.pkg",
+      "image": "https://your-host.example/Apollo.png",
+      "filename": "Apollo.pkg",
+      "description": "Optional description displayed in the Libraries tab."
+    },
+    {
+      "id": "my-app",
+      "name": "My App",
+      "category": "Utilities",
+      "pkg_url": "https://your-host.example/MyApp.pkg",
+      "image": "artwork/MyApp.png",
+      "filename": "MyApp.pkg"
+    }
+  ]
+}
