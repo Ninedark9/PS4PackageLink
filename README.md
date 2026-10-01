@@ -23,9 +23,7 @@ The project consists of two parts:
 
 ## Preview
 
-<p align="center">
-  <img src="docs/companion-ui-preview.png" alt="PS4 Package Link PC Companion" width="100%">
-</p>
+![PS4 Package Link PC Companion](./docs/companion-ui-preview.png)
 
 ## Features
 
