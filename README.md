@@ -297,8 +297,6 @@ PS4 Package Link builds on research and tooling from the PS4 homebrew community,
 - [flatz/ps4_remote_pkg_installer](https://github.com/flatz/ps4_remote_pkg_installer)
 - [LightningMods/PS4-Store](https://github.com/LightningMods/PS4-Store)
 
-Thanks to the developers and researchers who documented PS4 package, BGFT and homebrew behavior.
-
 ## Disclaimer
 
 This project is not affiliated with or endorsed by Sony Interactive Entertainment.
