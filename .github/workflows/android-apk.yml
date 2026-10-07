@@ -21,13 +21,13 @@ jobs:
         run: |
           echo "ANDROID_HOME=$ANDROID_HOME"
           ls "$ANDROID_HOME/cmdline-tools"
-          "$ANDROID_HOME/cmdline-tools/16.0/bin/sdkmanager" --list_installed | head -35
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --list_installed | head -35
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
       - name: Install Android SDK 35
         run: |
-          "$ANDROID_HOME/cmdline-tools/16.0/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0'
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0'
       - name: Expand Kotlin project
         run: |
           base64 --decode android-build-src.b64 | tar -xJf -
