@@ -4,6 +4,7 @@ on:
     branches: [android-build-2026-10-08]
     paths:
       - 'android-build-src.b64'
+      - 'android-catalog-patch-v0.2.b64'
       - '.github/workflows/android-apk.yml'
   workflow_dispatch:
 jobs:
@@ -32,11 +33,16 @@ jobs:
         run: |
           base64 --decode android-build-src.b64 | tar -xJf -
           ls -l app/build.gradle.kts
+      - name: Add Games Library metadata-only catalog
+        run: |
+          base64 --decode android-catalog-patch-v0.2.b64 | tar -xJf -
+          python3 patch_android_v02.py
+          grep 'versionName' app/build.gradle.kts
       - name: Compile and run unit tests
         run: gradle --no-daemon --stacktrace assembleDebug testDebugUnitTest
       - uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: PS4PackageLink-Android-v0.1.0-debug
+          name: PS4PackageLink-Android-v0.2.0-debug
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
