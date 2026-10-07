@@ -5,6 +5,7 @@ on:
     paths:
       - 'android-build-src.b64'
       - 'android-catalog-patch-v0.2.b64'
+      - 'android-catalog-patch-v0.3.b64'
       - '.github/workflows/android-apk.yml'
   workflow_dispatch:
 jobs:
@@ -38,11 +39,16 @@ jobs:
           base64 --decode android-catalog-patch-v0.2.b64 | tar -xJf -
           python3 patch_android_v02.py
           grep 'versionName' app/build.gradle.kts
+      - name: Enable full online search v0.3.0
+        run: |
+          base64 --decode android-catalog-patch-v0.3.b64 | tar -xJf -
+          grep -F 'versionName = "0.3.0"' app/build.gradle.kts
+          grep -F 'fun search(rawQuery: String, page: Int)' app/src/main/java/dev/ninedark/ps4packagelink/catalog/GameCatalog.kt
       - name: Compile and run unit tests
         run: gradle --no-daemon --stacktrace assembleDebug testDebugUnitTest
       - uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: PS4PackageLink-Android-v0.2.0-debug
+          name: PS4PackageLink-Android-v0.3.0-debug
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
