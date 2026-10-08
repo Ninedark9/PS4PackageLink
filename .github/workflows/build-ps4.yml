@@ -29,7 +29,9 @@ jobs:
       - name: Supply legacy OpenSSL for PKG tool
         run: |
           mkdir -p debian_ssl
-          docker run --rm -v "$PWD/debian_ssl:/output" debian:bullseye bash -c 'set -e; apt-get update -qq; apt-get download libssl1.1; dpkg-deb -x libssl1.1_*.deb /output'
+          curl -fL --retry 3 'https://ftp.mpi-inf.mpg.de/pub/linux/mirror/debian-snapshots/bullseye/security.debian.org/debian-security/pool/updates/main/o/openssl/libssl1.1_1.1.1w-0%2Bdeb11u8_amd64.deb' -o /tmp/libssl1.1.deb
+          dpkg-deb -x /tmp/libssl1.1.deb debian_ssl
+          ls -l debian_ssl/usr/lib/x86_64-linux-gnu/libssl.so.1.1
       - name: Build with matching OpenOrbis headers
         run: |
           docker run --rm --user 0:0 -v "$PWD/console:/workspace" -v "$PWD/sdk_headers:/lib/OpenOrbisSDK/include:ro" -v "$PWD/debian_ssl/usr/lib/x86_64-linux-gnu:/compat_ssl:ro" -e LD_LIBRARY_PATH=/compat_ssl -w /workspace/PS4-Package-Link-v0.6.6/ps4_app openorbisofficial/toolchain:latest bash -c 'set -e; make -j2 USE_UNRAR=0; ls -lh PS4-Package-Link.pkg'
