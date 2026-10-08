@@ -33,8 +33,8 @@ jobs:
           curl -fLsS --retry 2 https://github.com/OpenOrbis/create-gp4/releases/download/v1.0/binaries.tar.gz | tar -xz -C /tmp/gp4_bins
           find /tmp/fself_bins -type f | head -10
           find /tmp/gp4_bins -type f | head -10
-          cp "$(find /tmp/fself_bins -type f -name create-fself | head -1)" tool_binaries/create-fself
-          cp "$(find /tmp/gp4_bins -type f -name create-gp4 | head -1)" tool_binaries/create-gp4
+          cp "/tmp/fself_bins/bin/linux/create-fself" tool_binaries/create-fself
+          cp "/tmp/gp4_bins/bin/linux/create-gp4" tool_binaries/create-gp4
           chmod +x tool_binaries/*
       - name: Supply legacy OpenSSL for PKG tool
         run: |
