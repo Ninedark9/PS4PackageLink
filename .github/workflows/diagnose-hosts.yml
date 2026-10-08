@@ -8,20 +8,30 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: Probe article markup, never download files
+      - name: Inspect genuine article links and contexts
         run: |
+          python3 -m pip -q install beautifulsoup4
           python3 - <<'PY'
-          import urllib.request, urllib.error, re
-          for url in ["https://dlpsgame.com/resident-evil-2-ps4-pkg-3/", "https://downloadgameps3.net/archives/45302"]:
-            print("=== TARGET",url,flush=True)
+          import urllib.request, re
+          from bs4 import BeautifulSoup
+          urls=['https://dlpsgame.com/resident-evil-2-ps4-pkg-3/','https://downloadgameps3.net/archives/45302']
+          for u in urls:
+            print("URL",u,flush=True)
             try:
-              req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/130 Safari/537.36","Accept":"text/html"})
-              with urllib.request.urlopen(req,timeout=16) as resp:
-                print("STATUS",resp.status,"END",resp.url,"TYPE",resp.headers.get('Content-Type'),flush=True)
-                data=resp.read(350000).decode("utf-8","replace")
-                print("SIZE",len(data),"HAS_KW",[(k,len(list(re.finditer(k,data,re.I)))) for k in ("akia","rootz","mediafire","downloadgameps3.net","onclick","target=\\\"_blank","entry-content")],flush=True)
-                for match in list(re.finditer(r'.{0,140}(?:akia|rootz|data(?:nodes)?|target=[\\"\']_blank[\\"\']|downloadgameps3.net).{0,190}',data,re.I))[:15]:
-                  line=re.sub(r'(?is)<script.*?</script>','',match.group(0))
-                  print("FRAGMENT",re.sub(r'[\\r\\n]+',' ',line)[:330],flush=True)
-            except Exception as exc: print("ERROR",type(exc).__name__,str(exc)[:180],flush=True)
+              req=urllib.request.Request(u,headers={'User-Agent':'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/130 Safari/537.36'})
+              with urllib.request.urlopen(req,timeout=20) as res:
+                html=res.read(300000).decode('utf8','replace')
+                print('RESULT',res.status,res.url,len(html),flush=True)
+              soup=BeautifulSoup(html,'html.parser')
+              for selector in ['article .entry-content','article','.entry-content','.post-content','main','div.post']:
+                roots=soup.select(selector)
+                print('ROOT',selector,len(roots),[len(x.select('a[href]')) for x in roots[:3]],flush=True)
+              root=soup.select_one('article .entry-content, article .post-content, .entry-content, .post-content, main article, article, main') or soup.body
+              print('SELECTED',str(root.get('class') if root else None),len(root.select('a[href]')) if root else 0,flush=True)
+              for i,a in enumerate(root.select('a[href]')[:180]):
+                h=a.get('href',''); t=a.get_text(' ',strip=True)[:55]
+                if any(k in (h+' '+t).lower() for k in ['mediafire','rootz','akia','downloadgameps3','filecrypt','1file','game','update','dlc','link','mirror','rar','redirect']):
+                  print('ANCHOR',i,repr(t),repr(h[:145]),'target',a.get('target'),'outer',str(a.parent)[:230].replace('\n',' '),flush=True)
+              print('TEXT_NEAR_DOWNLOAD',root.get_text(' ',strip=True)[-2600:],flush=True)
+            except Exception as e: print('ERROR',repr(e),flush=True)
           PY
