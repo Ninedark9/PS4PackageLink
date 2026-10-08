@@ -8,6 +8,31 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
+      - name: Render link widgets with real Chromium
+        run: |
+          python3 -m pip -q install selenium
+          python3 - <<'PY'
+          from selenium import webdriver
+          from selenium.webdriver.chrome.options import Options
+          import time
+          opts=Options()
+          opts.add_argument('--headless=new')
+          opts.add_argument('--no-sandbox')
+          opts.add_argument('--disable-dev-shm-usage')
+          opts.add_argument('--window-size=1280,900')
+          opts.add_argument('--disable-notifications')
+          try:
+            driver=webdriver.Chrome(options=opts)
+            driver.set_page_load_timeout(28)
+            driver.get('https://dlpsgame.com/resident-evil-2-ps4-pkg-3/')
+            for pause in [3,5,8]:
+              time.sleep(pause)
+              print('AT',pause,'URL',driver.current_url,'TITLE',driver.title,flush=True)
+              result=driver.execute_script('''var root=document.querySelector(".entry-content")||document.body;var a=Array.from(root.querySelectorAll("a[href]")); return {count:a.length, text:root.innerText.slice(0,2200), links:a.filter(x=>/download|mediafire|rootz|akia|let|data|1file|game/i.test(x.innerText+" "+x.href)).slice(0,28).map(x=>({text:x.innerText,href:x.href,target:x.target}))};''')
+              print('RESULT',repr(result)[:6500],flush=True)
+            driver.quit()
+          except Exception as e: print('BROWSER_FAIL',type(e).__name__,str(e)[:500],flush=True)
+          PY
       - name: Inspect genuine article links and contexts
         run: |
           python3 -m pip -q install beautifulsoup4
