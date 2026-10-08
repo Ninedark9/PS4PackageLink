@@ -18,9 +18,11 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v3
-      - name: Install SDK
-        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Install Android SDK
+        run: |
+          echo "ANDROID_HOME=${ANDROID_HOME}"
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
       - name: Unpack Android sources
         run: |
           base64 -d android-build.b64 > /tmp/source.zip
