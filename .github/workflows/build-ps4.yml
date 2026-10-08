@@ -1,0 +1,33 @@
+name: Build PS4 Package Link 0.6.6
+on:
+  push:
+    branches: [android-build-v0.5.1]
+    paths:
+      - 'ps4-build.b64'
+      - '.github/workflows/build-ps4.yml'
+  workflow_dispatch:
+jobs:
+  ps4:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unpack PS4 sources
+        run: |
+          mkdir -p console
+          base64 -d ps4-build.b64 >/tmp/ps4-source.zip
+          unzip -q /tmp/ps4-source.zip -d console
+      - name: Build using OpenOrbis Docker
+        run: |
+          docker run --rm -v "$PWD/console:/workspace" -w /workspace/PS4-Package-Link-v0.6.6/ps4_app openorbisofficial/toolchain:latest bash -c 'echo "OO_PS4_TOOLCHAIN=$OO_PS4_TOOLCHAIN"; make -j2 USE_UNRAR=0'
+      - name: Check output package
+        run: |
+          test -s console/PS4-Package-Link-v0.6.6/ps4_app/PS4-Package-Link.pkg
+          sha256sum console/PS4-Package-Link-v0.6.6/ps4_app/PS4-Package-Link.pkg
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: PS4-Package-Link-v0.6.6-PKG
+          path: console/PS4-Package-Link-v0.6.6/ps4_app/PS4-Package-Link.pkg
+          if-no-files-found: error
