@@ -25,6 +25,17 @@ jobs:
           git clone --quiet --depth=1 https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain.git /tmp/openorbis
           cp -a /tmp/openorbis/include sdk_headers
           chmod -R a+rX sdk_headers
+      - name: Fetch OpenOrbis binary converters
+        run: |
+          set -e
+          mkdir -p tool_binaries /tmp/fself_bins /tmp/gp4_bins
+          curl -fLsS --retry 2 https://github.com/OpenOrbis/create-fself/releases/download/v1.3/binaries.tar.gz | tar -xz -C /tmp/fself_bins
+          curl -fLsS --retry 2 https://github.com/OpenOrbis/create-gp4/releases/download/v1.0/binaries.tar.gz | tar -xz -C /tmp/gp4_bins
+          find /tmp/fself_bins -type f | head -10
+          find /tmp/gp4_bins -type f | head -10
+          cp "$(find /tmp/fself_bins -type f -name create-fself | head -1)" tool_binaries/create-fself
+          cp "$(find /tmp/gp4_bins -type f -name create-gp4 | head -1)" tool_binaries/create-gp4
+          chmod +x tool_binaries/*
       - name: Supply legacy OpenSSL for PKG tool
         run: |
           mkdir -p debian_ssl
@@ -33,7 +44,7 @@ jobs:
           ls -l debian_ssl/usr/lib/x86_64-linux-gnu/libssl.so.1.1
       - name: Build with matching OpenOrbis headers
         run: |
-          docker run --rm --user 0:0 -v "$PWD/console:/workspace" -v "$PWD/sdk_headers/orbis:/external_orbis:ro" -v "$PWD/debian_ssl/usr/lib/x86_64-linux-gnu:/compat_ssl:ro" -e LD_LIBRARY_PATH=/compat_ssl -w /workspace/PS4-Package-Link-v0.6.6/ps4_app openorbisofficial/toolchain:latest bash -c 'set -e; cp -a /external_orbis/. /lib/OpenOrbisSDK/include/orbis/; sed -i "s/int ioctl (int, int, ...);/int ioctl (int, unsigned long, ...);/" /lib/OpenOrbisSDK/include/sys/ioctl.h; make -j2 USE_UNRAR=0; ls -lh PS4-Package-Link.pkg'
+          docker run --rm --user 0:0 -v "$PWD/console:/workspace" -v "$PWD/sdk_headers/orbis:/external_orbis:ro" -v "$PWD/tool_binaries:/external_tools:ro" -v "$PWD/debian_ssl/usr/lib/x86_64-linux-gnu:/compat_ssl:ro" -e LD_LIBRARY_PATH=/compat_ssl -w /workspace/PS4-Package-Link-v0.6.6/ps4_app openorbisofficial/toolchain:latest bash -c 'set -e; cp -a /external_orbis/. /lib/OpenOrbisSDK/include/orbis/; cp /external_tools/create-fself /external_tools/create-gp4 /lib/OpenOrbisSDK/bin/linux/; chmod +x /lib/OpenOrbisSDK/bin/linux/create-fself /lib/OpenOrbisSDK/bin/linux/create-gp4; sed -i "s/int ioctl (int, int, ...);/int ioctl (int, unsigned long, ...);/" /lib/OpenOrbisSDK/include/sys/ioctl.h; make -j2 USE_UNRAR=0; ls -lh PS4-Package-Link.pkg'
       - name: Validate output
         run: |
           test -s console/PS4-Package-Link-v0.6.6/ps4_app/PS4-Package-Link.pkg
