@@ -1,7 +1,7 @@
-name: Build Android APK v0.5.3
+name: Build Android APK v0.5.4
 on:
   push:
-    branches: [android-build-v0.5.3]
+    branches: [android-build-v0.5.4]
     paths:
       - '.github/workflows/build-android.yml'
       - 'android-build.b64'
@@ -45,6 +45,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: PS4PackageLink-Android-v0.5.3
+          name: PS4PackageLink-Android-v0.5.4
           path: android-project/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: warn
