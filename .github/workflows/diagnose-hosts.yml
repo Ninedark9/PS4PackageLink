@@ -1,0 +1,27 @@
+name: Diagnose Host Pages
+on:
+  push:
+    branches: [android-linkfix-v0.5.4]
+    paths: [.github/workflows/diagnose-hosts.yml]
+  workflow_dispatch:
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe article markup, never download files
+        run: |
+          python3 - <<'PY'
+          import urllib.request, urllib.error, re
+          for url in ["https://dlpsgame.com/resident-evil-2-ps4-pkg-3/", "https://downloadgameps3.net/archives/45302"]:
+            print("=== TARGET",url,flush=True)
+            try:
+              req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/130 Safari/537.36","Accept":"text/html"})
+              with urllib.request.urlopen(req,timeout=16) as resp:
+                print("STATUS",resp.status,"END",resp.url,"TYPE",resp.headers.get('Content-Type'),flush=True)
+                data=resp.read(350000).decode("utf-8","replace")
+                print("SIZE",len(data),"HAS_KW",[(k,len(list(re.finditer(k,data,re.I)))) for k in ("akia","rootz","mediafire","downloadgameps3.net","onclick","target=\\\"_blank","entry-content")],flush=True)
+                for match in list(re.finditer(r'.{0,140}(?:akia|rootz|data(?:nodes)?|target=[\\"\']_blank[\\"\']|downloadgameps3.net).{0,190}',data,re.I))[:15]:
+                  line=re.sub(r'(?is)<script.*?</script>','',match.group(0))
+                  print("FRAGMENT",re.sub(r'[\\r\\n]+',' ',line)[:330],flush=True)
+            except Exception as exc: print("ERROR",type(exc).__name__,str(exc)[:180],flush=True)
+          PY
