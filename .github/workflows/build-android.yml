@@ -1,7 +1,7 @@
-name: Build Android APK v0.5.3
+name: Build Android APK v0.5.4
 on:
   push:
-    branches: [android-build-v0.5.3]
+    branches: [android-build-v0.5.4]
     paths:
       - '.github/workflows/build-android.yml'
       - 'android-build.b64'
@@ -39,12 +39,23 @@ jobs:
           base64 -d android-build.b64 > /tmp/source.zip
           mkdir -p android-project
           unzip -q /tmp/source.zip -d android-project
+      - name: Verify JavaScript browser extractor syntax
+        run: |
+          python3 - <<'PY'
+          import re, pathlib
+          p=pathlib.Path('android-project/app/src/main/java/dev/ninedark/ps4packagelink/catalog/BrowserLinkCapture.kt')
+          text=p.read_text()
+          match=re.search(r'const val javascript = """(.*?)"""',text,re.S)
+          assert match,'Browser JavaScript not found'
+          pathlib.Path('/tmp/host_discovery.js').write_text(match.group(1))
+          PY
+          node --check /tmp/host_discovery.js
       - name: Assemble debug APK
         working-directory: android-project
         run: bash ./gradlew --no-daemon testDebugUnitTest assembleDebug
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: PS4PackageLink-Android-v0.5.3
+          name: PS4PackageLink-Android-v0.5.4
           path: android-project/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: warn
