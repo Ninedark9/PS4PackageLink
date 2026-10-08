@@ -18,6 +18,7 @@ jobs:
           mkdir -p console
           base64 -d ps4-build.b64 >/tmp/ps4-source.zip
           unzip -q /tmp/ps4-source.zip -d console
+          chmod -R a+rwX console
       - name: Build using OpenOrbis Docker
         run: |
           docker run --rm -v "$PWD/console:/workspace" -w /workspace/PS4-Package-Link-v0.6.6/ps4_app openorbisofficial/toolchain:latest bash -c 'echo "OO_PS4_TOOLCHAIN=$OO_PS4_TOOLCHAIN"; make -j2 USE_UNRAR=0'
