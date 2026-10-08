@@ -1,0 +1,50 @@
+name: Probe Host Page Structure
+on:
+  push:
+    branches: [android-host-probe-v0.5.5]
+    paths: ['.github/workflows/host-probe.yml']
+  workflow_dispatch:
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect public article and gateway navigation
+        run: |
+          python3 - <<'PY'
+          import urllib.request, urllib.error, re
+          from html.parser import HTMLParser
+          from urllib.parse import urlparse
+          urls=[
+           'https://dlpsgame.com/resident-evil-2-ps4-pkg-3/',
+           'https://downloadgameps3.net/archives/45302',
+           'https://dlpsgame.com/category/ps4/',
+          ]
+          class A(HTMLParser):
+           def __init__(self): super().__init__(); self.anchors=[];self.href=None; self.text=[]
+           def handle_starttag(self,tag,attrs):
+            d=dict(attrs)
+            if tag=='a':
+             self.href=d.get('href','')
+             self.text=[]
+           def handle_endtag(self,tag):
+            if tag=='a' and self.href is not None:
+             self.anchors.append((self.href,' '.join(self.text).strip()[:75]))
+             self.href=None
+           def handle_data(self,data):
+            if self.href is not None: self.text.append(data)
+          for url in urls:
+           print('PAGE',url)
+           try:
+            req=urllib.request.Request(url, headers={'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/121.0 Safari/537.36'})
+            with urllib.request.urlopen(req,timeout=22) as f:
+             data=f.read(3500000).decode('utf-8','replace')
+             print('STATUS',f.status,'FINAL_URL',f.geturl(),'HTML_BYTES',len(data),'CONTENT_TYPE',f.headers.get('content-type'))
+            p=A(); p.feed(data)
+            print('ANCHORS',len(p.anchors))
+            for u,t in p.anchors:
+             try: domain=urlparse(u).hostname or '' 
+             except: domain=''
+             if re.search(r'akia|rootz|data|mediafire|fichier|mirror|download|1file|link|filecrypt|update|dlc',t+' '+domain,re.I):
+              print('RELEVANT',repr(t[:70]),'DOMAIN',domain,'PATH',urlparse(u).path[:80])
+           except Exception as e:print('FETCH_FAILED',repr(e)[:600])
+          PY
