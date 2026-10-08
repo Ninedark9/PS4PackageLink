@@ -48,3 +48,13 @@ jobs:
               print('RELEVANT',repr(t[:70]),'DOMAIN',domain,'PATH',urlparse(u).path[:80])
            except Exception as e:print('FETCH_FAILED',repr(e)[:600])
           PY
+
+      - name: Save article HTML for parser inspection
+        run: |
+          mkdir -p captured
+          curl -fLsS --max-time 25 -A 'Mozilla/5.0' 'https://dlpsgame.com/resident-evil-2-ps4-pkg-3/' -o captured/resident-evil-2.html
+          wc -c captured/resident-evil-2.html
+      - uses: actions/upload-artifact@v4
+        with:
+          name: article-html-probe
+          path: captured/resident-evil-2.html
