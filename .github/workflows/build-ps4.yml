@@ -34,7 +34,7 @@ jobs:
           ls -l debian_ssl/usr/lib/x86_64-linux-gnu/libssl.so.1.1
       - name: Build with matching OpenOrbis headers
         run: |
-          docker run --rm --user 0:0 -v "$PWD/console:/workspace" -v "$PWD/sdk_headers:/lib/OpenOrbisSDK/include:ro" -v "$PWD/debian_ssl/usr/lib/x86_64-linux-gnu:/compat_ssl:ro" -e LD_LIBRARY_PATH=/compat_ssl -w /workspace/PS4-Package-Link-v0.6.6/ps4_app openorbisofficial/toolchain:latest bash -c 'set -e; make -j2 USE_UNRAR=0; ls -lh PS4-Package-Link.pkg'
+          docker run --rm --user 0:0 -v "$PWD/console:/workspace" -v "$PWD/sdk_headers/orbis:/external_orbis:ro" -v "$PWD/debian_ssl/usr/lib/x86_64-linux-gnu:/compat_ssl:ro" -e LD_LIBRARY_PATH=/compat_ssl -w /workspace/PS4-Package-Link-v0.6.6/ps4_app openorbisofficial/toolchain:latest bash -c 'set -e; cp -a /external_orbis/. /lib/OpenOrbisSDK/include/orbis/; make -j2 USE_UNRAR=0; ls -lh PS4-Package-Link.pkg'
       - name: Validate output
         run: |
           test -s console/PS4-Package-Link-v0.6.6/ps4_app/PS4-Package-Link.pkg
