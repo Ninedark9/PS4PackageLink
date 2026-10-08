@@ -1,7 +1,7 @@
 name: Build Android APK v0.5.4
 on:
   push:
-    branches: [android-build-v0.5.4]
+    branches: [android-linkfix-v0.5.4]
     paths:
       - '.github/workflows/build-android.yml'
       - 'android-build.b64'
